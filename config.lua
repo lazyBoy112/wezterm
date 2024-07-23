@@ -3,7 +3,8 @@ M.options = {
   window_background_opacity = 0.95,
   status_update_interval = 1000,
   disable_default_key_bindings = true,
-  default_prog = { 'powershell.exe', '-NoLogo' },
+  -- default_prog = { 'powershell.exe', '-NoLogo' },
+  -- default_prog = { 'pwsh' },
   force_reverse_video_cursor = true,
   bold_brightens_ansi_colors = 'BrightAndBold',
    -- tab bar
@@ -11,7 +12,7 @@ M.options = {
    hide_tab_bar_if_only_one_tab = true,
    use_fancy_tab_bar = false,
    tab_bar_at_bottom = true,
-   tab_max_width = 25,
+   tab_max_width = 20,
    show_tab_index_in_tab_bar = false,
    switch_to_last_active_tab_when_closing_tab = true,
 
@@ -19,7 +20,21 @@ M.options = {
    default_cursor_style = "BlinkingBlock",
    cursor_blink_ease_in = "Constant",
    cursor_blink_ease_out = "Constant",
-   cursor_blink_rate = 700,
+   cursor_blink_rate = 500,
+   -- cursor_blink_rate_rapid = 250,
+
+   -- skip confirmation
+   skip_close_confirmation_for_processes_named = {
+     'bash',
+     'sh',
+     'zsh',
+     'fish',
+     'tmux',
+     'nu',
+     'cmd.exe',
+     'pwsh.exe',
+     'powershell.exe',
+   },
 
    -- window
    window_decorations = 'RESIZE',
@@ -37,7 +52,7 @@ M.options = {
    },
    font = require 'wezterm'.font('FiraCode Nerd Font', {weight='Medium', stretch='Normal'}),
    adjust_window_size_when_changing_font_size = false,
-   font_size = 13,
+   font_size = 14,
     freetype_load_target = 'Normal', -- 'Normal'|'Light'|'Mono'|'HorizontalLcd'
    -- window_close_confirmation = 'AlwaysPrompt',
    window_frame = {

@@ -1,4 +1,5 @@
 local wezterm = require 'wezterm'
+local base = require 'base'
 
 local config = {}
 
@@ -22,6 +23,26 @@ config.mouse_bindings = {
     action = wezterm.action.StartWindowDrag,
   },
 }
+
+-- set default process
+if require 'base'.platform().is_win then
+  config.default_prog = { 'pwsh', '-NoLogo', '-ExecutionPolicy', 'RemoteSigned', '-NoProfileLoadTime'}
+  config.launch_menu = {
+    {
+      label = base.prog_icon['pwsh.exe']..' PowerShell V7',
+      args = { 'pwsh', '-NoLogo', '-ExecutionPolicy', '-RemoteSigned', '-NoProfileLoadTime' },
+      cwd = '~',
+    },
+    {
+      label = base.prog_icon['pwsh.exe']..' PowerShell V5',
+      args = { 'powershell' },
+      cwd = '~',
+    },
+    { label = 'Cmd', args = { 'cmd.exe' }, cwd = '~' },
+    { label = base.prog_icon['git']..' Git bash', args = { 'sh', '-l' }, cwd = '~' },
+  }
+end
+
 
 -- Setup
 require 'right-status'.setup()

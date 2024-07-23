@@ -3,68 +3,44 @@ local M = {}
 local mColor = require 'base'.color
 local s_left = ""
 
-M.separator_char = ' '
-
-M.colors = {
-   date_fg = '#c0ff28',
-   date_bg = '#181825',
-   battery_fg = '#c0ff28',
-   battery_bg = '#181825',
-   separator_fg = '#dccb00',
-   separator_bg = '#181825',
-}
-
-M.cells = {} -- wezterm FormatItems (ref: https://wezfurlong.org/wezterm/config/lua/wezterm/format.html)
-
-local function executeCommand(command)
-  local handle = io.popen(command)
-  if handle ~= nil then
-    local result = handle:read("*a")
-    handle:close()
-    return result
-  end
-  return ''
-end
-
-local get_memory = function()
-  local cmd1 = executeCommand('wmic ComputerSystem get TotalPhysicalMemory /value')
-  local cmd2 = executeCommand('wmic OS get FreePhysicalMemory /value')
-  if not cmd1 or not cmd2 then
-    return 'hello'
-  end
-  local total = cmd1:match('TotalPhysicalMemory=(%d+)')
-  local free = cmd2:match('FreePhysicalMemory=(%d+)')
-  total = tonumber(total)
-  total = total /1024 /1024
-  free = tonumber(free)
-  free = free /1024
-  return string.format('%.1f', 100 - free*100/total)
-end
-
----@param text string
----@param icon string
----@param fg string
----@param bg string
----@param separate boolean
-M.push = function(text, icon, fg, bg)
-   table.insert(M.cells, { Foreground = { Color = fg } })
-   table.insert(M.cells, { Background = { Color = bg } })
-   table.insert(M.cells, { Attribute = { Intensity = 'Bold' } })
-   table.insert(M.cells, { Text = icon..text  })
-
-   table.insert(M.cells, 'ResetAttributes')
+---@param cell table cell
+---@param text string chuỗi hiển thị
+---@param fg string màu chữ
+---@param bg string màu nền
+---@return table cell trả về
+local add_element = function(cell, text, fg, bg)
+  table.insert(cell, { Background = { Color = bg } })
+  table.insert(cell, { Foreground = { Color = fg } })
+  table.insert(cell, { Attribute = { Intensity = 'Bold' } })
+  table.insert(cell, { Text = text  })
+  return cell
 end
 
 M.setup = function()
-   wezterm.on('update-right-status', function(window, _pane)
-    M.cells = {}
-    local str = _pane:get_current_working_dir()
-    str = string.sub(str, 9, string.len(str))
-    M.push('', s_left, mColor.blue, mColor.black)
-    -- M.push(str, '', mColor.black, mColor.blue)
-    M.push('lazyBoy112', '', mColor.black, mColor.blue)
+  wezterm.on('update-right-status', function(window, pane)
+    local cells = {}
+    local cols = pane:get_dimensions().pixel_width/require'config'.options.font_size
+    local max_size = math.floor(cols * 0.3)
+    local bg_name  = mColor.l_red
+    local fg_name  = mColor.black
+    local bg_time  = mColor.l_red
+    local fg_time  = mColor.black
+    local bg_bar   = mColor.black
 
-    window:set_right_status(wezterm.format(M.cells))
+
+    if max_size > 10 then
+      local date = wezterm.strftime '%H:%M'
+      cells = add_element(cells, '', bg_time, bg_bar)
+      cells = add_element(cells, '󰄉 '..date, fg_time, bg_time) -- 8
+      -- cells = add_element(cells, '', bg_name, bg_time)
+      -- cells = add_element(cells, 'lazyBoy112', fg_name, bg_name)
+      cells = add_element(cells, ' 󰒲 ', fg_time, bg_time)
+
+    else
+      cells = {}
+    end
+
+    window:set_right_status(wezterm.format(cells))
    end)
 end
 

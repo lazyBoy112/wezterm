@@ -1,4 +1,5 @@
 local action = require 'wezterm'.action
+local wezterm = require 'wezterm'
 
 return {
   {
@@ -32,7 +33,7 @@ return {
     action = action.ScrollByLine(5)
   },
   {
-    key = 'r',
+    key = 'w',
     mods = 'CTRL|SHIFT',
     action = action.RotatePanes 'CounterClockwise'
   },
@@ -59,12 +60,12 @@ return {
   {
     key = 'u',
     mods = 'CTRL|SHIFT',
-    action = action.SplitHorizontal
+    action = action.SplitHorizontal { domain='CurrentPaneDomain' }
   },
   {
     key = 'i',
     mods = 'CTRL|SHIFT',
-    action = action.SplitVertical
+    action = action.SplitVertical { domain='CurrentPaneDomain' }
   },
   {
     key = 'w',
@@ -126,14 +127,24 @@ return {
     mods = 'CTRL',
     action = action.ActivateTabRelative(1)
   },
-  -- {
-  --   key = '',
-  --   mods = 'CTRL|SHIFT',
-  --   action = action
-  -- },
   {
     key = 'F1',
     mods = '',
     action = action.TogglePaneZoomState
+  },
+  {
+    key = 'R',
+    mods = 'CTRL|SHIFT',
+    action = action.PromptInputLine {
+      description = 'Enter new name for tab',
+      action = wezterm.action_callback(function(window, _, line)
+        -- line will be `nil` if they hit escape without entering anything
+        -- An empty string if they just hit enter
+        -- Or the actual line of text they wrote
+        if line then
+          window:active_tab():set_title(line)
+        end
+      end),
+    },
   },
 }

@@ -1,102 +1,68 @@
 local wezterm = require 'wezterm'
-local mColor = require 'base'.color
-local s_left = " "  -- , , , , 
-local s_right = "" -- , , , , 
-local fg_bar_active = mColor.green
-local bg_bar_active = mColor.black
-local fg_s_active = mColor.black
-local bg_s_active = mColor.green
-local fg_bar_inactive = mColor.black
-local bg_bar_inactive = mColor.white
-local fg_s_inactive = mColor.black
-local bg_s_inactive = mColor.black
-local fg_bar_hover = mColor.l_black
-local bg_bar_hover = mColor.white
-local fg_s_hover = mColor.black
-local bg_s_hover = mColor.l_black
+local mColor = require'base'.color
 local M = {}
-local get_dir = function(s)
-  local rev = string.reverse(s)
-  local i, j = rev.find(rev, '/')
-  rev = string.sub(rev, j + 1, string.len(rev))
-  i, j = rev.find(rev, '/')
-  rev = string.sub(rev, 1, i-1)
-  return string.reverse(rev)
+
+-- , 
+local left_bar_icon = ''
+-- , 
+local right_bar_icon = ''
+
+---@param bar table đối tượng được thêm vào
+---@param fg string màu chữ
+---@param bg string màu nền
+---@return table đối tượng trả về
+local add_element = function(bar, bg, fg, title, att)
+  table.insert(bar, { Background = { Color = bg } })
+  table.insert(bar, { Foreground = { Color = fg } })
+  table.insert(bar, { Attribute = att })
+  table.insert(bar, { Text = title })
+  return bar
 end
 
-M.set_process_name = function(s)
-   local a = string.gsub(s, "(.*[/\\])(.*)", "%2")
-   return a:gsub("%.exe$", "")
+--@param tab table đối tượng tab
+--@return string chuỗi title
+local tab_title = function(tab)
+  local title = tab.tab_title
+  if title and #title > 0 then
+    return title
+  end
+  return tab.active_pane.title
 end
 
-M.set_title = function(process_name, static_title, active_title, max_width)
-   local title
-
-   if process_name:len() > 0 and static_title:len() == 0 then
-      title = process_name .. " ~ " .. " "
-   elseif static_title:len() > 0 then
-      title = static_title .. " ~ " .. " "
-   else
-      title = active_title .. " ㉿ " .. " "
-   end
-
-   if title:len() > max_width then
-      local diff = title:len() - max_width
-      title = wezterm.truncate_right(title, title:len() - diff)
-   end
-
-   return title
-end
-
----@param fg string
----@param bg string
----@param attribute table
----@param text string
-M.push = function(bg, fg, attribute, text)
-   table.insert(M.cells, { Background = { Color = bg } })
-   table.insert(M.cells, { Foreground = { Color = fg } })
-   table.insert(M.cells, { Attribute = attribute })
-   table.insert(M.cells, { Text = text })
-end
-
-M.setup = function()
-   wezterm.on("format-tab-title", function(tab, tabs, panes, config, hover, max_width)
-      M.cells = {}
-
-      local bg
-      local fg
-      local process_name = M.set_process_name(tab.active_pane.foreground_process_name)
-      -- local title = M.set_title(process_name, tab.tab_title, tab.active_pane.title, max_width)
-      local t = tab.active_pane.current_working_dir
-      local title = M.set_title(get_dir(t), tab.tab_title, tab.active_pane.title, max_width)
+function M.setup()
+  wezterm.on(
+    'format-tab-title',
+    function(tab, tabs, panes, config, hover, max_width)
+      -- local cols = panes[1].width
+      local max_w_tab = require'config'.options.tab_max_width - 2
+      local title = tab_title(tab)
+      title = string.gsub(title, '%.exe$', '')
+      if #title > max_w_tab then
+        title = string.sub(title, 1, max_w_tab)
+      end
+      local bar = {}
+      local bg_bar = mColor.black
+      local bg_active = mColor.green
+      local fg_active = mColor.black
+      local bg_inactive = mColor.l_black
+      local fg_inactive = mColor.white
 
       if tab.is_active then
-        -- Separator left
-        M.push(bg_s_active, fg_s_active, { Intensity='Bold' }, s_right)
-        -- Title
-        M.push(fg_bar_active, bg_bar_active, { Intensity='Bold' }, title)
-        -- Separator right
-        M.push(fg_s_active, bg_s_active, { Intensity='Bold' }, s_right)
+        bar = add_element(bar, bg_bar, bg_active, left_bar_icon, {Intensity="Normal"})
+        bar = add_element(bar, bg_active, fg_active, ' '..title, {Intensity="Bold"})
+        bar = add_element(bar, bg_bar, bg_active, right_bar_icon, {Intensity="Normal"})
       elseif hover then
-        -- Separator left
-        M.push(bg_s_hover, fg_s_hover, { Intensity='Bold' }, s_right)
-        -- Title
-        M.push(fg_bar_hover, bg_bar_hover, { Intensity='Bold' }, title)
-        -- Separator right
-        M.push(fg_s_hover, bg_s_hover, { Intensity='Bold' }, s_right)
+        bar = add_element(bar, bg_bar, fg_inactive, left_bar_icon, {Intensity="Normal"})
+        bar = add_element(bar, fg_inactive, bg_inactive, ' '..title, {Intensity="Bold"})
+        bar = add_element(bar, bg_bar, fg_inactive, right_bar_icon, {Intensity="Normal"})
       else
-        -- Separator left
-        M.push(fg_s_inactive, bg_s_inactive, { Intensity='Bold' }, s_left)
-        -- Title
-        M.push(fg_bar_inactive, bg_bar_inactive, { Intensity='Bold' }, title)
-        -- Separator right
-        M.push(fg_s_inactive, bg_s_inactive, { Intensity='Bold' }, s_right)
+        bar = add_element(bar, bg_bar, bg_inactive, left_bar_icon, {Intensity="Normal"})
+        bar = add_element(bar, bg_inactive, fg_inactive, ' '..title, {Intensity="Normal"})
+        bar = add_element(bar, bg_bar, bg_inactive, right_bar_icon, {Intensity="Normal"})
       end
-
-      return M.cells
-   end)
+      return bar
+    end
+  )
 end
-
-
 
 return M
