@@ -37,8 +37,9 @@ M.options = {
    },
 
    -- window
-   window_decorations = 'RESIZE',
-   -- window_decorations = "INTEGRATED_BUTTONS|RESIZE",
+   -- window_decorations = 'RESIZE',
+   window_decorations = "INTEGRATED_BUTTONS|RESIZE",
+   -- window_decorations = 'NONE',
    -- integrated_title_button_style = "Windows", -- Windows, Gnome
    -- integrated_title_button_color = "auto",
    -- integrated_title_button_alignment = "Right",
