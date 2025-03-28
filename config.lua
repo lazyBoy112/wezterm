@@ -1,6 +1,6 @@
 local M = {}
 M.options = {
-  window_background_opacity = 0.95,
+  window_background_opacity = 0.90,
   status_update_interval = 1000,
   disable_default_key_bindings = true,
   integrated_title_buttons = { 'Close' },

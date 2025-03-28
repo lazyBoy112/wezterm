@@ -5,7 +5,8 @@ local nf = wezterm.nerdfonts
 M.color = {
   none = 'none',
 
-  black = '#001618',
+  --black = '#001618',
+  black = '#000000',
   l_black = '#363062',
 
   red = '#bf616a',
