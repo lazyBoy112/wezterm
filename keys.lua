@@ -45,25 +45,25 @@ return {
   {
     key = 'v',
     mods = 'CTRL|SHIFT',
-  action = action.PasteFrom 'Clipboard',
+    action = action.PasteFrom 'Clipboard',
   },
   {
     key = '-',
     mods = 'CTRL',
-  action = action.DecreaseFontSize
+    action = action.DecreaseFontSize
   },
   {
     key = '=',
     mods = 'CTRL',
-  action = action.IncreaseFontSize
+    action = action.IncreaseFontSize
   },
   {
-    key = 'u',
+    key = 'i',
     mods = 'CTRL|SHIFT',
     action = action.SplitHorizontal { domain='CurrentPaneDomain' }
   },
   {
-    key = 'i',
+    key = 'o',
     mods = 'CTRL|SHIFT',
     action = action.SplitVertical { domain='CurrentPaneDomain' }
   },
