@@ -60,7 +60,7 @@ if require 'base'.platform().is_win then
     { label = base.prog_icon['git']..' Git bash', args = { 'sh', '-l' }, cwd = '~' },
   }
 elseif require 'base'.platform().is_linux then
-  config.default_prog = { '/home/linuxbrew/.linuxbrew/bin/fish', '-l'}
+  config.default_prog = { '/usr/bin/fish', '-l'}
   config.launch_menu = {
     {
       label = base.prog_icon['fish']..' fish',
